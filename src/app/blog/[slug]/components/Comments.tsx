@@ -5,19 +5,28 @@ import React, { useEffect, useState } from 'react'
 import { addComment, getCommets } from '@/store/commentSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '@/store/store'
+import { commentsApi } from '@/store/commentsApi'
 
 export default function Comments({ slug }: { slug: string }) {
 
   // const [comments, setComments] = useState<IComment[]>([])
-  const comments = useSelector((state: RootState) => state.commentReducer.list);
-  const dispatch = useDispatch<AppDispatch>();
+  const { data: comments, isLoading } = commentsApi.useGetCommentsQuery(slug)
+  const [addComment, { isLoading: isAddingComment }] = commentsApi.useAddCommentMutation()
+
+  // const comments = useSelector((state: RootState) => state.commentReducer.list);
+  // const dispatch = useDispatch<AppDispatch>();
 
   const [newComment, setNewComment] = useState<string>("")
 
   useEffect(() => {
-    dispatch(getCommets(slug))
+    // dispatch(getCommets(slug))
   }, [])
 
+  if (isLoading) {
+    return (
+      <div>Loading</div>
+    )
+  }
 
   return (
     <div>
@@ -29,16 +38,17 @@ export default function Comments({ slug }: { slug: string }) {
           className='p-2 rounded-md outline-none border border-gray-300 w-full' placeholder='write  comment' />
         <button
           onClick={() => {
-            dispatch(
-              addComment({
+            addComment({
+              slug,
+              comment: {
                 author: {
                   avatar: "https://avatars.githubusercontent.com/u/99490001",
                   name: "Teri Mueller"
                 },
                 content: newComment,
                 uploadedAt: Date.now()
-              })
-            )
+              }
+            })
             setNewComment("")
           }}
           className='ml-auto bg-gray-800 flex-shrink-0 text-sm font-bold px-2.5 py-1.5 rounded-lg text-white'>Add</button>
