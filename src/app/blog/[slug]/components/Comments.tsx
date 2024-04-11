@@ -2,17 +2,20 @@
 
 import React, { useEffect, useState } from 'react'
 
-import { IComment } from '@/types'
-import blogsJSON from '@/data/blogs.json'
+import { addComment, getCommets } from '@/store/commentSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '@/store/store'
 
 export default function Comments({ slug }: { slug: string }) {
 
-  const [comments, setComments] = useState<IComment[]>([])
+  // const [comments, setComments] = useState<IComment[]>([])
+  const comments = useSelector((state: RootState) => state.commentReducer.list);
+  const dispatch = useDispatch<AppDispatch>();
+
   const [newComment, setNewComment] = useState<string>("")
 
   useEffect(() => {
-    const blogComments = getComments(slug)
-    setComments(blogComments)
+    dispatch(getCommets(slug))
   }, [])
 
 
@@ -26,17 +29,16 @@ export default function Comments({ slug }: { slug: string }) {
           className='p-2 rounded-md outline-none border border-gray-300 w-full' placeholder='write  comment' />
         <button
           onClick={() => {
-            setComments((prev) => {
-              const newC: IComment = {
+            dispatch(
+              addComment({
                 author: {
                   avatar: "https://avatars.githubusercontent.com/u/99490001",
                   name: "Teri Mueller"
                 },
                 content: newComment,
                 uploadedAt: Date.now()
-              }
-              return [newC].concat(prev.slice())
-            })
+              })
+            )
             setNewComment("")
           }}
           className='ml-auto bg-gray-800 flex-shrink-0 text-sm font-bold px-2.5 py-1.5 rounded-lg text-white'>Add</button>
@@ -70,10 +72,10 @@ export default function Comments({ slug }: { slug: string }) {
   )
 }
 
-function getComments(slug: string) {
-  const blog = blogsJSON.find((blog) => blog.slug === slug)
-  if (blog?.comments) {
-    return blog.comments as IComment[]
-  }
-  return []
-}
+// function getComments(slug: string) {
+//   const blog = blogsJSON.find((blog) => blog.slug === slug)
+//   if (blog?.comments) {
+//     return blog.comments as IComment[]
+//   }
+//   return []
+// }

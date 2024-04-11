@@ -44,5 +44,5 @@ for (let i = 0; i < numBlogs; i++) {
 const jsonData = JSON.stringify(blogs, null, 2);
 
 // Write the JSON data to a file
-fs.writeFileSync('blogs.json', jsonData);
+fs.writeFileSync('src/data/blogs.json', jsonData);
 console.log('JSON data written to blogs.json');

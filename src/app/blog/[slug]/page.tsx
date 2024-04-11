@@ -1,6 +1,7 @@
 import React from 'react'
-import blogsJSON from '../../../data/blogs.json'
-import Comments from './components/Comments';
+
+import blogsJSON from '@/data/blogs.json'
+import CommentsSection from './components/CommentsSection';
 
 export default function BlogPage({ params }: { params: { slug: string } }) {
 
@@ -32,7 +33,7 @@ export default function BlogPage({ params }: { params: { slug: string } }) {
         </div>
 
         <div className='mt-10'>
-          <Comments slug={params.slug} />
+          <CommentsSection slug={params.slug} />
         </div>
       </div>
     )
