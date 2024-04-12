@@ -1,36 +1,36 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-
-import { addComment, getCommets } from '@/store/commentSlice'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from '@/store/store'
-import { commentsApi } from '@/store/commentsApi'
+import React, { useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
+import blogsJSON from '@/data/blogs.json'
+import { IComment } from '@/types'
 
 export default function Comments({ slug }: { slug: string }) {
 
-  // const [comments, setComments] = useState<IComment[]>([])
-  // const { data: comments, isLoading } = commentsApi.useGetCommentsQuery(slug)
-  // const [addComment, { isLoading: isAddingComment }] = commentsApi.useAddCommentMutation()
+  const queryClient = useQueryClient()
+  const queryKey = `comments-${slug}`
 
-  const comments = useSelector((state: RootState) => state.list);
-  const dispatch = useDispatch<AppDispatch>();
-
+  const { data: comments, isLoading } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const data = await getComments(slug)
+      return data
+    },
+  })
   const [newComment, setNewComment] = useState<string>("")
+  const { mutate: addComment } = useMutation(async (comment: IComment) => { return comment }, {
+    onSuccess: (newComment: IComment) => {
+      queryClient.setQueryData(queryKey, (oldComments: IComment[] | undefined) => {
+        if (!oldComments) return [newComment];
+        else return [newComment, ...oldComments];
+      });
+    },
+  });
 
-  useEffect(() => {
-    dispatch(getCommets(slug))
-  }, [])
-
-  // if (isLoading) {
-  //   return (
-  //     <div>Loading</div>
-  //   )
-  // }
 
   return (
     <div>
-      <h3 className='text-2xl font-semibold text-gray-900'>Comments</h3>
+      <div className='text-2xl font-semibold text-gray-900'>Comments</div>
       <div className='my-2.5 flex flex-row space-x-5 items-end'>
         <textarea
           value={newComment}
@@ -38,16 +38,24 @@ export default function Comments({ slug }: { slug: string }) {
           className='p-2 rounded-md outline-none border border-gray-300 w-full' placeholder='write  comment' />
         <button
           onClick={() => {
-            dispatch(addComment(
-              {
-                author: {
-                  avatar: "https://avatars.githubusercontent.com/u/99490001",
-                  name: "Teri Mueller"
-                },
-                content: newComment,
-                uploadedAt: Date.now()
-              }
-            ))
+            // dispatch(addComment(
+            //   {
+            //     author: {
+            //       avatar: "https://avatars.githubusercontent.com/u/99490001",
+            //       name: "Teri Mueller"
+            //     },
+            //     content: newComment,
+            //     uploadedAt: Date.now()
+            //   }
+            // ))
+            addComment({
+              author: {
+                avatar: "https://avatars.githubusercontent.com/u/99490001",
+                name: "Teri Mueller"
+              },
+              content: newComment,
+              uploadedAt: Date.now()
+            })
             setNewComment("")
           }}
           className='ml-auto bg-gray-800 flex-shrink-0 text-sm font-bold px-2.5 py-1.5 rounded-lg text-white'>Add</button>
@@ -88,3 +96,15 @@ export default function Comments({ slug }: { slug: string }) {
 //   }
 //   return []
 // }
+
+// key: { queryKey: string[] }
+async function getComments(slug: string) {
+  // console.log("INget comments", key)
+  // const [, slug] = key.queryKey as ['comments', slug: string]
+  const blog = blogsJSON.find((blog) => blog.slug === slug)
+
+  if (blog?.comments) {
+    return blog.comments as IComment[]
+  }
+  return []
+}

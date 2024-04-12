@@ -1,11 +1,21 @@
+"use client"
+
 import React from 'react'
 
 import blogsJSON from '@/data/blogs.json'
-import CommentsSection from './components/CommentsSection';
+import Comments from './components/Comments';
+import { useQuery } from 'react-query';
 
 export default function BlogPage({ params }: { params: { slug: string } }) {
 
-  const blogData = getBlogData(params.slug)
+  const { data: blogData, isLoading } = useQuery({
+    queryKey: ['blog', params.slug],
+    queryFn: async () => {
+      const data = await getBlogData(params.slug)
+      return data
+    },
+  })
+
 
   if (blogData) {
     const date = new Date(blogData.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -33,7 +43,7 @@ export default function BlogPage({ params }: { params: { slug: string } }) {
         </div>
 
         <div className='mt-10'>
-          <CommentsSection slug={params.slug} />
+          <Comments slug={params.slug} />
         </div>
       </div>
     )
@@ -43,7 +53,10 @@ export default function BlogPage({ params }: { params: { slug: string } }) {
   )
 }
 
-function getBlogData(slug: string) {
+async function getBlogData(slug: string) {
   const blog = blogsJSON.find((blog) => blog.slug === slug)
+  if (!blog) {
+    return null
+  }
   return blog
 }
