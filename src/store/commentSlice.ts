@@ -13,7 +13,7 @@ const initialState: CommentState = {
   slug: undefined,
 };
 
-export const comment = createSlice({
+export const commentSlice = createSlice({
   name: "comment",
   initialState,
   reducers: {
@@ -35,5 +35,5 @@ export const comment = createSlice({
   },
 });
 
-export const { addComment, getCommets } = comment.actions;
-export default comment.reducer;
+export const { addComment, getCommets } = commentSlice.actions;
+export default commentSlice.reducer;
