@@ -11,7 +11,7 @@ export default function NavBar() {
   const [toggle, setToggle] = useState<boolean>(false)
 
   return (
-    <nav className="bg-white sticky top-0 border-gray-200 dark:bg-gray-900 border-b z-50">
+    <nav className="bg-white sticky top-0 border-gray-200 dark:bg-gray-900 border-bottom z-50">
       <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto px-4 py-1.5">
         <Link href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <svg xmlns="http://www.w3.org/2000/svg" className='w-12 h-12' x="0px" y="0px" viewBox="0 0 48 48">
